@@ -1,5 +1,5 @@
 const { username, password } = require("./config");
-console.log(username);
+
 module.exports = {
   development: {
     client: "sqlite3",
