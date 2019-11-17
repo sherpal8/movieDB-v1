@@ -8,6 +8,12 @@ pg: Used as database for production.
 
 Knex: Used to create schema, also to populate data.
 
+bluebird: To have some familiarity with 3rd party Promises.
+
+prettyjson: To present data in terminal with greater clarity.
+
+JSON.stringify(): To improve understanding of this method for data presentation.
+
 Commands on CLI used include:
 
 - knex init (creates knexfile.js)
