@@ -4,7 +4,10 @@
   "description": "Movie database ",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "setupPgDb": "psql -f setupPostgresDb.sql > output.txt",
+    "migrateLatest": "knex migrate:latest",
+    "migrateRollback": "knex migrate:rollback"
   },
   "repository": {
     "type": "git",
