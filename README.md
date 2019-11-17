@@ -11,7 +11,7 @@ Knex: Used to create schema, also to populate data.
 Commands on CLI used include:
 
 - knex init (creates knexfile.js)
-- knex migrate:make \$desiredFileNameInMigrationsFolder
+- knex migrate:make \$desiredFileNameInMigrationsFolder (creates migrations folder for schemae building)
 - knex migrate:latest (for development database)
 - knex migrate:rollback (for development database)
 - knex migrate:latest --env production (for production database)
