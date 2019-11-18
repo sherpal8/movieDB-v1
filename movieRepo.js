@@ -36,7 +36,7 @@ const objFunc = {
   // list actors for a particular movie id
   listActorsFor: function(movieID) {
     return db("person AS p")
-      .select(db.raw("p.id, p.firstname || ' ' || p.lastname as text"))
+      .select(db.raw("p.id, p.firstname || ' ' || p.lastname AS text"))
       .join("actor_movie AS am", "am.person_id", "p.id")
       .where("am.movie_id", movieID)
       .then();
@@ -61,7 +61,7 @@ const objFunc = {
       pgSize = Math.min(qf.pgSize, 10),
       offset = (qf.pgNum - 1) * pgSize;
     return db("movie")
-      .count("* as total")
+      .count("* AS total")
       .then(function(rows) {
         result.total = rows[0].total;
         return result;
