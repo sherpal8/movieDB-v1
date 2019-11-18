@@ -25,7 +25,7 @@ module.exports = {
     }
 
     // if two tokens given, check if second token is a request for DESC order
-    if (s[1].toLowerCase() === "desc") {
+    if (s[1].toLowerCase().startsWith("desc")) {
       result.direction = "desc";
     }
 
