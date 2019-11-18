@@ -7,16 +7,17 @@ const {
   listRatings,
   getMovie,
   listTagsFor,
-  listActorsFor
+  listActorsFor,
+  get4Edit,
+  listMovies
 } = require("./movieRepo");
 const { listPeople } = require("./personRepo");
 
 clearTerminalScreen();
 
-// db("movie")
-//   .count()
+const queryFilter = { pgNum: 1, pgSize: 10, sort: "title" };
 
-listActorsFor(1)
+listMovies(queryFilter)
   .then(function(result) {
     write(result, "pretty");
   })
