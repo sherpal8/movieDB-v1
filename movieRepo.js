@@ -2,7 +2,7 @@
 
 const Promise = require("bluebird"); // 3rd party Promise library
 const db = require("./db");
-const { parseSortString } = require("./db-util");
+const { parseSortString, idToMMObjArr } = require("./db-util");
 
 const objFunc = {
   // list all tags
@@ -88,6 +88,59 @@ const objFunc = {
         result.items = rows;
         return result;
       });
+  },
+  // ------------delete movie with given id --------------
+  deleteMovie: function(movieID) {
+    return db("movie")
+      .del() // avoid using `delete` as its a javascript word too, to avoid conflict
+      .where("id", movieID)
+      .then(function(numberRowsDeleted) {
+        return numberRowsDeleted;
+      });
+  },
+  // ------------add new 'movie-graph' i.e. movie object --------------
+  addMovie: function(movieObj) {
+    // extract out the actors/ tags array from the 'movie graph' i.e. the new movie object
+    const actors = movieObj.actors;
+    const tags = movieObj.tags;
+    // process movie object to have the desired entries only
+    delete movieObj.actors;
+    delete movieObj.tags;
+    // remove id as it is not the correctly auto-generated id value from the 'movie' table
+    delete movieObj.id;
+    // to be used later
+    let actorsObj = {};
+    let tagsObj = {};
+    // as this is a many-to-many data entry, best to have a knex.transaction(function(){}) set up
+    return db.transaction(function(trx) {
+      return (
+        trx("movie")
+          .insert(movieObj, "id")
+          .then(function(movieId) {
+            // next, assign the correct generated ID
+            movieObj.id = movieId[0];
+            // utils functions used for many-to-many object
+            actorsObj = idToMMObjArr(
+              "person_id",
+              actors,
+              "movie_id",
+              movieId[0]
+            );
+            tagsObj = idToMMObjArr("tag_id", tags, "movie_id", movieId[0]);
+            // insert newly created actors object into actor_movie table
+            return trx("actor_movie").insert(actorsObj, "person_id");
+          })
+          // resolved cb function above returns 'person_id'
+          .then(function(person_id) {
+            // insert new created tags object into tag_movie table
+            return trx("tag_movie").insert(tagsObj, "tag_id");
+          })
+          // resolved cb function above returns 'tag_id'
+          .then(function(tag_id) {
+            return movieObj.id; // return the auto assigned ID to the newly inserted movie object
+          })
+      );
+    });
   }
 };
 
