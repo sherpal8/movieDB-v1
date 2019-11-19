@@ -2,9 +2,24 @@
 
 const Promise = require("bluebird"); // 3rd party Promise library
 const db = require("./db");
-const { parseSortString, idToMMObjArr } = require("./db-util");
+const { parseSortString, idToMMObjArr, getMMDelta } = require("./db-util");
 
 const objFunc = {
+  // ------------ Query functions --------------
+  // return tag IDs for a movie
+  getTagIDsFor: function(movieID) {
+    return db("tag_movie")
+      .pluck("tag_id")
+      .where("movie_id", movieID)
+      .then();
+  },
+  // return actor IDs for a movie
+  getActorIDsFor: function(movieID) {
+    return db("actor_movie")
+      .pluck("person_id")
+      .where("movie_id", movieID)
+      .then();
+  },
   // list all tags
   listTags: function() {
     return db("tag")
@@ -95,19 +110,21 @@ const objFunc = {
       .del() // avoid using `delete` as its a javascript word too, to avoid conflict
       .where("id", movieID)
       .then(function(numberRowsDeleted) {
+        // knex delete() cb returns number rows deleted by default
         return numberRowsDeleted;
       });
   },
   // ------------add new 'movie-graph' i.e. movie object --------------
   addMovie: function(movieObj) {
     // extract out the actors/ tags array from the 'movie graph' i.e. the new movie object
-    const actors = movieObj.actors;
-    const tags = movieObj.tags;
+    const movieObjCopy = { ...movieObj };
+    const actors = movieObjCopy.actors;
+    const tags = movieObjCopy.tags;
     // process movie object to have the desired entries only
-    delete movieObj.actors;
-    delete movieObj.tags;
+    delete movieObjCopy.actors;
+    delete movieObjCopy.tags;
     // remove id as it is not the correctly auto-generated id value from the 'movie' table
-    delete movieObj.id;
+    delete movieObjCopy.id;
     // to be used later
     let actorsObj = {};
     let tagsObj = {};
@@ -115,10 +132,10 @@ const objFunc = {
     return db.transaction(function(trx) {
       return (
         trx("movie")
-          .insert(movieObj, "id")
+          .insert(movieObjCopy, "id")
           .then(function(movieId) {
             // next, assign the correct generated ID
-            movieObj.id = movieId[0];
+            movieObjCopy.id = movieId[0];
             // utils functions used for many-to-many object
             actorsObj = idToMMObjArr(
               "person_id",
@@ -137,10 +154,70 @@ const objFunc = {
           })
           // resolved cb function above returns 'tag_id'
           .then(function(tag_id) {
-            return movieObj.id; // return the auto assigned ID to the newly inserted movie object
+            return movieObjCopy.id; // return the auto assigned ID to the newly inserted movie object
           })
       );
     });
+  },
+
+  // ------------ Update function --------------
+  updateMovie: function(newMovieObj) {
+    // make copy of the original input data i.e. newMovieObject to avoid mutation of original data
+    const newMovieObjCopy = { ...newMovieObj };
+    // extract out desired values into consts
+    const movieID = newMovieObjCopy.id;
+    const newActorIDs = newMovieObjCopy.actors;
+    const newTagIDs = newMovieObjCopy.tags;
+    // now, remove unwanted properties to allow for update
+    delete newMovieObjCopy.actors;
+    delete newMovieObjCopy.tags;
+    delete newMovieObjCopy.id;
+
+    // variables to hold actors/tags to add/delete from the movie schema
+    let actorDelta = [],
+      tagDelta = [];
+
+    // get existing actor/ tag ids for the movie
+    return Promise.all([
+      objFunc.getActorIDsFor(movieID),
+      objFunc.getTagIDsFor(movieID)
+    ])
+      .then(function(results) {
+        // get changes to add/del hence `delta`
+        actorDelta = getMMDelta(
+          newActorIDs,
+          results[0],
+          "person_id",
+          "movie_id",
+          movieID
+        );
+        tagDelta = getMMDelta(
+          newTagIDs,
+          results[1],
+          "tag_id",
+          "movie_id",
+          movieID
+        );
+      })
+      .then(function() {
+        return db.transaction(function(trx) {
+          return Promise.all([
+            trx("movie")
+              .where("id", movieID)
+              .update(newMovieObjCopy),
+            trx("actor_movie")
+              .whereIn("tag_id", actorDelta.deletionArr)
+              .andWhere("movie_id", movieID)
+              .del(),
+            trx("tag_movie")
+              .whereIn("tag_id", tagDelta.deletionArr)
+              .andWhere("movie_id", movieID)
+              .del(),
+            trx("actor_movie").insert(actorDelta.additionArr),
+            trx("tag_movie").insert(tagDelta.additionArr)
+          ]);
+        });
+      });
   }
 };
 

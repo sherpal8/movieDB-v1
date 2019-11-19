@@ -6,8 +6,9 @@ module.exports = {
     connection: { filename: "./movie.sqlite" },
     migrations: { tableName: "knex_migrations" },
     seeds: { directory: "./seeds" },
+    // sqlite3 does not have default FK set-up
+    // therefore this code allows FK (and, 'CASCADE') on delete
     pool: {
-      // sqlite3 does not have default FK, therefore this code allows FK + cascading on delete
       afterCreate: function(conn, cb) {
         conn.run("PRAGMA foreign_keys=ON", cb);
       }
