@@ -34,12 +34,40 @@ module.exports = {
   // given an array if ids e.g. [1,2]
   // returns new array of many-to-many (M:M) object
   // example [{person_id:1, movie_id:4}, {person_id:2, movie_id:4}]
-  idToMMObjArr: function(arrayFieldName, idArray, otherFieldName, otherId) {
+  idToMMObjArr: function(fieldName1, idArray, fieldName2, otherId) {
     return idArray.map(function(eachId) {
       let singleObj = {};
-      singleObj[arrayFieldName] = eachId;
-      singleObj[otherFieldName] = otherId;
+      singleObj[fieldName1] = eachId;
+      singleObj[fieldName2] = otherId;
       return singleObj;
     });
+  },
+  // Returns an object with the add/ delete changes, to make a many-to-many table
+  // given the new/ existing ids
+  getMMDelta: function(
+    newIDs,
+    currentIDs,
+    variableFieldName,
+    constFieldName,
+    constID
+  ) {
+    const additionArr = [],
+      deletionArr = [];
+    // look for IDs in newIDs that are not in currentIDs. These will be ADDs. ([] of many:many objs)
+    newIDs.forEach(function(eachNewID) {
+      if (!currentIDs.includes(eachNewID)) {
+        const pushObj = {};
+        pushObj[variableFieldName] = eachNewID;
+        pushObj[constFieldName] = constID;
+        additionArr.push(pushObj);
+      }
+    });
+    // look for IDs in currentIDs to are not in newIDs. These will be DELETEs. ([] of ids only)
+    currentIDs.forEach(function(eachCurrentID) {
+      if (!newIDs.includes(eachCurrentID)) {
+        deletionArr.push(eachCurrentID);
+      }
+    });
+    return { additionArr, deletionArr };
   }
 };

@@ -11,7 +11,8 @@ const {
   get4Edit,
   listMovies,
   deleteMovie,
-  addMovie
+  addMovie,
+  updateMovie
 } = require("./movieRepo");
 const { listPeople, addPerson } = require("./personRepo");
 
@@ -26,20 +27,20 @@ const newPersonInfo = {
 };
 
 const newMovieObj = {
-  id: 0, // new movie as no ID has been assigned to it yet
+  id: 32, // new movie as no ID has been assigned to it yet
   rating_id: 4, // rating of R
   director_id: 21, // director name: 'Ms J' ---> refers to ID in 'person' table
-  actors: [16], // name: 'DDA'
-  tags: [2, 7], // Action, Drama
-  title: "The Last Samurai Princess",
-  releaseyr: 2004,
+  actors: [16, 12], // name: 'DDA'
+  tags: [12, 7], // Martial Arts, Drama
+  title: "The Last Samurai Princess 3",
+  releaseyr: 2003,
   score: 10,
-  runtime: 1254,
+  runtime: 154,
   lastplaydt: "2015-10-20",
-  overview: "A Japanese film that the whole world loves."
+  overview: "Part 2 - A Japanese film that the whole world loves."
 };
 
-addMovie(newMovieObj)
+updateMovie(newMovieObj) // to view the new movie object inserted: use get4Edit(), as below
   .then(function(result) {
     write(result, "pretty");
   })
@@ -49,3 +50,14 @@ addMovie(newMovieObj)
   .finally(function() {
     db.destroy();
   });
+
+// get4Edit(32) // movieID (best to check output.txt to see if ID exists)
+//   .then(function(result) {
+//     write(result, "pretty");
+//   })
+//   .catch(function(err) {
+//     console.log(err);
+//   })
+//   .finally(function() {
+//     db.destroy();
+//   });
