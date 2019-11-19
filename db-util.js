@@ -30,5 +30,16 @@ module.exports = {
     }
 
     return result;
+  },
+  // given an array if ids e.g. [1,2]
+  // returns new array of many-to-many (M:M) object
+  // example [{person_id:1, movie_id:4}, {person_id:2, movie_id:4}]
+  idToMMObjArr: function(arrayFieldName, idArray, otherFieldName, otherId) {
+    return idArray.map(function(eachId) {
+      let singleObj = {};
+      singleObj[arrayFieldName] = eachId;
+      singleObj[otherFieldName] = otherId;
+      return singleObj;
+    });
   }
 };
