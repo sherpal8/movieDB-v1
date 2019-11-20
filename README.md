@@ -26,3 +26,10 @@ Commands on CLI used include:
 - knex seed:make 02-\$desiredSchemaNameInSeedFolder (number to organise schema population)
 - knex seed:run (populate development schemae)
 - knex seed:run --env production (populate production schemae)
+
+What was learned:
+
+1. The CRUD operations of sqlite3 as well as PG.
+2. To enable Foreign Keys in sqlite3 with flag and PRAGMA statement.
+3. To understand the complexities of many-to-many table.
+4. Utils functions to handle, extract and process desired data for insertion e.g. many-to-many objects array.

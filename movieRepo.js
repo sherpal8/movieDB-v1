@@ -6,14 +6,14 @@ const { parseSortString, idToMMObjArr, getMMDelta } = require("./db-util");
 
 const objFunc = {
   // ------------ Query functions --------------
-  // return tag IDs for a movie
+  // return tag IDs for a movie ---> specifically: to be used to extract value for updateMovie() below
   getTagIDsFor: function(movieID) {
     return db("tag_movie")
       .pluck("tag_id")
       .where("movie_id", movieID)
       .then();
   },
-  // return actor IDs for a movie
+  // return actor IDs for a movie ---> specifically: to be used to extract value for updateMovie() below
   getActorIDsFor: function(movieID) {
     return db("actor_movie")
       .pluck("person_id")
@@ -215,7 +215,21 @@ const objFunc = {
               .del(),
             trx("actor_movie").insert(actorDelta.additionArr),
             trx("tag_movie").insert(tagDelta.additionArr)
-          ]);
+          ]).then(function(result) {
+            const labelArr = [
+              "Insert into movie table:",
+              "Delete from actor_movie table:",
+              "Delete from tag_movie table:",
+              "Insert into actor_movie table:",
+              "Insert into tag_movie table:"
+            ];
+            return result.map(function(eachOutcome, i) {
+              if (eachOutcome === 1) {
+                return labelArr[i] + " successful operation";
+              }
+              return labelArr[i] + " unsuccessful operation";
+            });
+          });
         });
       });
   }
