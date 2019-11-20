@@ -201,6 +201,20 @@ const objFunc = {
       })
       .then(function() {
         return db.transaction(function(trx) {
+          // purpose of funcArr below:
+          // to avoid sql_misuse error when attempting to insert empty array into sqlite3
+          // therefore, only includes knex.insert() commands if tag/actors addition arrays not empty
+          let funcArr = [];
+          if (actorDelta.additionArr.length > 0) {
+            possibleFuncArr.push(
+              trx("actor_movie").insert(actorDelta.additionArr)
+            );
+            if (tagDelta.additionArr.length > 0) {
+              possibleFuncArr.push(
+                trx("tag_movie").insert(tagDelta.additionArr)
+              );
+            }
+          }
           return Promise.all([
             trx("movie")
               .where("id", movieID)
@@ -213,8 +227,7 @@ const objFunc = {
               .whereIn("tag_id", tagDelta.deletionArr)
               .andWhere("movie_id", movieID)
               .del(),
-            trx("actor_movie").insert(actorDelta.additionArr),
-            trx("tag_movie").insert(tagDelta.additionArr)
+            ...funcArr
           ]).then(function(result) {
             const labelArr = [
               "Insert into movie table:",

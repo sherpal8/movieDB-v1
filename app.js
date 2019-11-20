@@ -27,7 +27,7 @@ const newPersonInfo = {
 };
 
 const newMovieObj = {
-  id: 32, // if id = 0, it means no ID has been assigned to it yet
+  id: 6, // if id = 0, it means no ID has been assigned to it yet
   rating_id: 4, // rating of R
   director_id: 12, // director name: 'Ms J' ---> refers to ID in 'person' table
   actors: [15, 12], // name: 'DDA'

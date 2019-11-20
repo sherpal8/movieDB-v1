@@ -1,6 +1,6 @@
 "use strict";
 
 const cfg = require("./knexfile");
-const knex = require("knex")(cfg.production); // production || development
+const knex = require("knex")(cfg.development); // production || development
 
 module.exports = knex;
