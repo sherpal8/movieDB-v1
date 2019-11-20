@@ -27,10 +27,10 @@ const newPersonInfo = {
 };
 
 const newMovieObj = {
-  id: 5, // if id = 0, it means no ID has been assigned to it yet
+  id: 32, // if id = 0, it means no ID has been assigned to it yet
   rating_id: 4, // rating of R
   director_id: 12, // director name: 'Ms J' ---> refers to ID in 'person' table
-  actors: [16, 12], // name: 'DDA'
+  actors: [15, 12], // name: 'DDA'
   tags: [12, 7], // Martial Arts, Drama
   title: "The Last Samurai Princess 3",
   releaseyr: 2003,
@@ -40,7 +40,7 @@ const newMovieObj = {
   overview: "Part 2 - A Japanese film that the whole world loves."
 };
 
-deleteMovie(7) // to view the new movie object inserted: use get4Edit(), as below
+updateMovie(newMovieObj) // to view the new movie object inserted: use get4Edit(), as below
   .then(function(result) {
     write(result, "pretty");
   })

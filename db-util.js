@@ -51,9 +51,9 @@ module.exports = {
     constFieldName,
     constID
   ) {
-    const additionArr = [],
+    let additionArr = [],
       deletionArr = [];
-    // look for IDs in newIDs that are not in currentIDs. These will be ADDs. ([] of many:many objs)
+    // look for IDs in newIDs that are not in currentIDs. These will be ADDs. ([{},{}] of many:many objs)
     newIDs.forEach(function(eachNewID) {
       if (!currentIDs.includes(eachNewID)) {
         const pushObj = {};
@@ -62,7 +62,7 @@ module.exports = {
         additionArr.push(pushObj);
       }
     });
-    // look for IDs in currentIDs to are not in newIDs. These will be DELETEs. ([] of ids only)
+    // look for IDs in currentIDs to are not in newIDs. These will be DELETEs. ([] of ids only i.e. numbers)
     currentIDs.forEach(function(eachCurrentID) {
       if (!newIDs.includes(eachCurrentID)) {
         deletionArr.push(eachCurrentID);
