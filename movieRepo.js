@@ -206,7 +206,7 @@ const objFunc = {
               .where("id", movieID)
               .update(newMovieObjCopy),
             trx("actor_movie")
-              .whereIn("tag_id", actorDelta.deletionArr)
+              .whereIn("person_id", actorDelta.deletionArr)
               .andWhere("movie_id", movieID)
               .del(),
             trx("tag_movie")
