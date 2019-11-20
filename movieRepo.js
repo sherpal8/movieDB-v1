@@ -126,8 +126,8 @@ const objFunc = {
     // remove id as it is not the correctly auto-generated id value from the 'movie' table
     delete movieObjCopy.id;
     // to be used later
-    let actorsObj = {};
-    let tagsObj = {};
+    let actorsObjArr = [];
+    let tagsObjArr = [];
     // as this is a many-to-many data entry, best to have a knex.transaction(function(){}) set up
     return db.transaction(function(trx) {
       return (
@@ -137,20 +137,24 @@ const objFunc = {
             // next, assign the correct generated ID
             movieObjCopy.id = movieId[0];
             // utils functions used for many-to-many object
-            actorsObj = idToMMObjArr(
+            actorsObjArr = idToMMObjArr(
               "person_id",
               actors,
               "movie_id",
               movieId[0]
             );
-            tagsObj = idToMMObjArr("tag_id", tags, "movie_id", movieId[0]);
+            tagsObjArr = idToMMObjArr("tag_id", tags, "movie_id", movieId[0]);
             // insert newly created actors object into actor_movie table
-            return trx("actor_movie").insert(actorsObj, "person_id");
+            if (actorsObjArr.length > 0) {
+              return trx("actor_movie").insert(actorsObjArr, "person_id");
+            }
           })
           // resolved cb function above returns 'person_id'
           .then(function(person_id) {
             // insert new created tags object into tag_movie table
-            return trx("tag_movie").insert(tagsObj, "tag_id");
+            if (tagsObjArr.length > 0) {
+              return trx("tag_movie").insert(tagsObjArr, "tag_id");
+            }
           })
           // resolved cb function above returns 'tag_id'
           .then(function(tag_id) {
@@ -228,6 +232,8 @@ const objFunc = {
               .andWhere("movie_id", movieID)
               .del(),
             ...funcArr
+            // trx("actor_movie").insert(actorDelta.additionArr), // inserted into funcArr to overcome sql_misuse err
+            // trx("tag_movie").insert(tagDelta.additionArr) // // inserted into funcArr to overcome sql_misuse err
           ]).then(function(result) {
             const labelArr = [
               "Insert into movie table:",

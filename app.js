@@ -27,20 +27,20 @@ const newPersonInfo = {
 };
 
 const newMovieObj = {
-  id: 6, // if id = 0, it means no ID has been assigned to it yet
+  id: 0, // if id = 0, it means no ID has been assigned to it yet
   rating_id: 4, // rating of R
   director_id: 12, // director name: 'Ms J' ---> refers to ID in 'person' table
   actors: [15, 12], // name: 'DDA'
   tags: [12, 7], // Martial Arts, Drama
-  title: "The Last Samurai Princess 3",
+  title: "The Last King",
   releaseyr: 2003,
   score: 10,
   runtime: 154,
   lastplaydt: "2015-10-20",
-  overview: "Part 2 - A Japanese film that the whole world loves."
+  overview: "Part 2 - A Korean film that the whole world loves."
 };
 
-updateMovie(newMovieObj) // to view the new movie object inserted: use get4Edit(), as below
+addMovie(newMovieObj) // to view the new movie object inserted: use get4Edit(), as below
   .then(function(result) {
     write(result, "pretty");
   })
